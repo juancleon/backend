@@ -68,6 +68,8 @@ projectRoutes.route('/applications/add').post(function(req, res) {
                });
 });
 
+
+
 projectRoutes.route('/testScores/add').post(function(req, res) {
     let testScore = new TestScore(req.body);
     testScore.save()
@@ -112,6 +114,28 @@ projectRoutes.route('/testScores/update/:id').post(function(req, res) {
                     res.status(400).send("Update not possible");
                 });
     });
+});
+
+projectRoutes.route('/applications/delete/:id').delete(function(req, res) {// delete one by id
+      let id = req.params.id;
+      Application.findByIdAndRemove(id, function(err, application) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(application);
+        }
+      });
+});
+
+projectRoutes.route('/testScores/delete/:id').delete(function(req, res) {// delete one by id
+      let id = req.params.id;
+      TestScore.findByIdAndRemove(id, function(err, testScore) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(testScore);
+        }
+      });
 });
 
 app.use('/project', projectRoutes);
