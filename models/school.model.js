@@ -15,7 +15,7 @@ let School = new Schema({
         type: Number
     },
     programsOffered: {
-        type: Array
+        type: String
     }
 });
 
