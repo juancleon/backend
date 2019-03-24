@@ -2,7 +2,8 @@ const express = require('express');//use "nodemon server" to start server
 const app = express();
 const bodyParser = require ('body-parser');
 const cors = require('cors');
-const mongoose = require ('mongoose');//returns Singleton. Mongoose is a library that allows us to deal in an object-oriented way with the database.
+const mongoose = require ('mongoose');/*returns Singleton. Mongoose is a library that allows us to deal in an object-oriented way with the
+database.*/
 
 const projectRoutes = express.Router();
 
@@ -67,8 +68,6 @@ projectRoutes.route('/applications/add').post(function(req, res) {
                     res.status(400).send('adding new application failed');
                });
 });
-
-
 
 projectRoutes.route('/testScores/add').post(function(req, res) {
     let testScore = new TestScore(req.body);
@@ -138,7 +137,20 @@ projectRoutes.route('/testScores/delete/:id').delete(function(req, res) {// dele
       });
 });
 
-app.use('/project', projectRoutes);
+projectRoutes.route('/searchSchools').get(function(req, res){
+  testScore.testType = req.body.testType;
+  testScore.mathScore = req.body.mathScore;
+  testScore.verbalScore = req.body.verbalScore;
+  School.find(function(err, schools) {
+      if (err) {
+          console.log(err);
+      } else {
+          res.json(schools);
+      }
+  });
+});
+
+app.use('/', projectRoutes);
 
 app.listen(PORT, function() {
     console.log("Server is running on Port: " + PORT);
