@@ -11,12 +11,12 @@ let School = new Schema({
     zipCode: {
         type: Number
     },
-    costOfLiving: {
+    costOfLivingIndex: {
         type: Number
     },
     programsOffered: {
-        type: Array
+        type: [String]
     }
 });
-
+//School.index({programsOffered: 'text'});
 module.exports = mongoose.model('schools', School);/*Parameters are (MongoDB Collection name, name of Schema object defined in file)*/
