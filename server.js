@@ -142,10 +142,12 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
       let searchZipCode = req.params.zipCode;
       let searchCostOfLiving = req.params.costOfLiving;
       let searchProgramsOfInterest = req.params.programOfInterest;
-      console.log(searchCostOfLiving);
-      /*console.log(searchCostOfLiving);
-      console.log(searchProgramsOfInterest);*/
-      //searchProgramsOfInterest/i
+      console.log(searchProgramsOfInterest);
+      //console.log(String(searchZipCode - 9910));
+      //console.log(String(Number(searchCostOfLiving) + 100));
+      //console.log(String(searchCostOfLiving - 100));
+      //console.log(String(Number(searchCostOfLiving) + 100));
+
       //{ $elemMatch: {searchProgramsOfInterest}
       //School.find({ zipCode: {}, costOfLiving: {}, programsOffered: new RegExp(searchProgramsOfInterest, 'i') }, function(err, schools) {
       //{ "$regex": searchProgramsOfInterest, "$options": i }
@@ -153,29 +155,28 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
       School.aggregate(
       [
         {$match: {
-         zipCode: {$gte: String(searchZipCode - 500), $lte: String(searchZipCode + 500)},
-         costOfLivingIndex: { $gte: String(searchCostOfLiving - 100), $lte: String(searchCostOfLiving + 100)}}}
-        /* Match first to reduce documents to those where the array contains the match
-      { $match: {
-        zipCode: { $gte: searchZipCode - 1000, $lte: searchZipCode + 1000},
-        costOfLiving: { $gte: searchCostOfLiving - 50, $lte: searchCostOfLiving + 50},
+         //zipCode: {$gte: String(searchZipCode - 9910), $lte: String(Number(searchZipCode) + 9910)},
+         //costOfLivingIndex: {$gte: String(searchCostOfLiving - 78), $lte: String(Number(searchCostOfLiving) + 78)},
+         programsOffered: {$regex: searchProgramsOfInterest, $options: 'i'}}}
+         // Match first to reduce documents to those where the array contains the match
+         /*
         //programsOffered: new RegExp(searchProgramsOfInterest, 'i')
-        programsOffered: /searchProgramsOfInterest/i
+        //programsOffered: /searchProgramsOfInterest/i
         }},
         // Unwind to "de-normalize" the document per array element
-        { $unwind: "$programsOffered" },
+        { $unwind: programsOffered},
         // Now filter those document for the elements that match
         { $match: {
-          programsOffered: /searchProgramsOfInterest/i
+          programsOffered: {$regex: searchProgramsOfInterest, $options: 'i'}
         }},
         // Group back as an array with only the matching elements
         { $group: {
-          _id: "$_id",
-          name: { $first: "$name" },
-          schoolUrl: { $first: "$schoolUrl" },
-          zipCode: { $first: "$zipCode" },
-          costOfLiving: { $first: "$costOfLiving" },
-          programsOffered: { $push: "$programsOffered" }
+          _id: $_id,
+          name: { $first: $name},
+          schoolUrl: { $first: $schoolUrl },
+          zipCode: { $first: $zipCode },
+          costOfLiving: { $first: $costOfLiving },
+          programsOffered: { $push: $programsOffered }
         }}*/
       ],
           function(err, schools) {
