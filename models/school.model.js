@@ -14,9 +14,9 @@ let School = new Schema({
     costOfLivingIndex: {
         type: Number
     },
-    programsOffered: {
+    programsOfferedArray: {
         type: [String]
     }
 });
-//School.index({programsOffered: 'text'});
+School.index({programsOffered: 'text'});
 module.exports = mongoose.model('schools', School);/*Parameters are (MongoDB Collection name, name of Schema object defined in file)*/
