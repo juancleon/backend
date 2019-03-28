@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 mongoose.connect('mongodb://127.0.0.1:27017/Project', {useNewUrlParser: true});
 //mongoose.set('useCreateIndex', true);
 const connection = mongoose.connection;/*Mongoose creates a default connection when you call mongoose.connect(). You can access the default
-  connection using mongoose.connection.*/
+connection using mongoose.connection.*/
 
 connection.once('open', function (){
     console.log("MongoDB database connection established successfully");
@@ -142,42 +142,33 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
       let searchZipCode = req.params.zipCode;
       let searchCostOfLiving = req.params.costOfLiving;
       let searchProgramsOfInterest = req.params.programOfInterest;
-      console.log(searchProgramsOfInterest);
-      //console.log(String(searchZipCode - 9910));
-      //console.log(String(Number(searchCostOfLiving) + 100));
-      //console.log(String(searchCostOfLiving - 100));
-      //console.log(String(Number(searchCostOfLiving) + 100));
-
-      //{ $elemMatch: {searchProgramsOfInterest}
-      //School.find({ zipCode: {}, costOfLiving: {}, programsOffered: new RegExp(searchProgramsOfInterest, 'i') }, function(err, schools) {
-      //{ "$regex": searchProgramsOfInterest, "$options": i }
 
       School.aggregate(
       [
         {$match: {
-         //zipCode: {$gte: String(searchZipCode - 9910), $lte: String(Number(searchZipCode) + 9910)},
-         //costOfLivingIndex: {$gte: String(searchCostOfLiving - 78), $lte: String(Number(searchCostOfLiving) + 78)},
-         programsOffered: {$regex: searchProgramsOfInterest, $options: 'i'}}}
+         zipCode: {$gte: String(searchZipCode - 9910), $lte: String(Number(searchZipCode) + 9910)},
+         costOfLivingIndex: {$gte: String(searchCostOfLiving - 78), $lte: String(Number(searchCostOfLiving) + 78)},
          // Match first to reduce documents to those where the array contains the match
-         /*
-        //programsOffered: new RegExp(searchProgramsOfInterest, 'i')
-        //programsOffered: /searchProgramsOfInterest/i
-        }},
+         //programsOfferedArray: new RegExp(searchProgramsOfInterest, 'i')
+         //programsOfferedArray: /searchProgramsOfInterest/i
+         programsOfferedArray: {$regex: searchProgramsOfInterest, $options: 'i'}
+       }},
         // Unwind to "de-normalize" the document per array element
-        { $unwind: programsOffered},
-        // Now filter those document for the elements that match
+        {$unwind: "$programsOfferedArray"},
+        // Now filter the documents for the elements that match
         { $match: {
-          programsOffered: {$regex: searchProgramsOfInterest, $options: 'i'}
+          programsOfferedArray: {$regex: searchProgramsOfInterest, $options: 'i'}
         }},
         // Group back as an array with only the matching elements
         { $group: {
-          _id: $_id,
-          name: { $first: $name},
-          schoolUrl: { $first: $schoolUrl },
-          zipCode: { $first: $zipCode },
-          costOfLiving: { $first: $costOfLiving },
-          programsOffered: { $push: $programsOffered }
-        }}*/
+          _id: "$_id",
+          name: { $first: "$name"},
+          schoolURL: { $first: "$schoolURL"},
+          state: { $first: "$state"},
+          zipCode: { $first: "$zipCode"},
+          programsOfferedArray: { $push: "$programsOfferedArray"},
+          costOfLivingIndex: { $first: "$costOfLivingIndex"}
+        }}
       ],
           function(err, schools) {
           if (err) {
