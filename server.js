@@ -17,7 +17,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 mongoose.connect('mongodb://127.0.0.1:27017/Project', {useNewUrlParser: true});
-//mongoose.set('useCreateIndex', true);
+mongoose.set('useCreateIndex', true);
 const connection = mongoose.connection;/*Mongoose creates a default connection when you call mongoose.connect(). You can access the default
 connection using mongoose.connection.*/
 
@@ -151,13 +151,13 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
          // Match first to reduce documents to those where the array contains the match
          //programsOfferedArray: new RegExp(searchProgramsOfInterest, 'i')
          //programsOfferedArray: /searchProgramsOfInterest/i
-         programsOfferedArray: {$regex: searchProgramsOfInterest, $options: 'i'}
+         programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
        }},
         // Unwind to "de-normalize" the document per array element
         {$unwind: "$programsOfferedArray"},
         // Now filter the documents for the elements that match
         { $match: {
-          programsOfferedArray: {$regex: searchProgramsOfInterest, $options: 'i'}
+          programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
         }},
         // Group back as an array with only the matching elements
         { $group: {
