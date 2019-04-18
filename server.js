@@ -17,7 +17,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 mongoose.connect('mongodb://127.0.0.1:27017/Project', {useNewUrlParser: true});
-mongoose.set('useCreateIndex', true);
+//mongoose.set('useCreateIndex', true);
 const connection = mongoose.connection;/*Mongoose creates a default connection when you call mongoose.connect(). You can access the default
 connection using mongoose.connection.*/
 
@@ -139,19 +139,26 @@ projectRoutes.route('/testScores/delete/:id').delete(function(req, res) {// dele
 });
 
 projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').get(function(req, res){
+
       let searchZipCode = req.params.zipCode;
       let searchCostOfLiving = req.params.costOfLiving;
       let searchProgramsOfInterest = req.params.programOfInterest;
 
+      if (searchProgramsOfInterest==='null')
+      {
+        searchProgramsOfInterest='';
+      }
+      console.log(searchProgramsOfInterest);
       School.aggregate(
       [
         {$match: {
+         $or:[{
          zipCode: {$gte: String(searchZipCode - 9910), $lte: String(Number(searchZipCode) + 9910)},
-         costOfLivingIndex: {$gte: String(searchCostOfLiving - 78), $lte: String(Number(searchCostOfLiving) + 78)},
+         costOfLivingIndex: {$gte: String(searchCostOfLiving - 20), $lte: String(Number(searchCostOfLiving) + 78)},
          // Match first to reduce documents to those where the array contains the match
          //programsOfferedArray: new RegExp(searchProgramsOfInterest, 'i')
          //programsOfferedArray: /searchProgramsOfInterest/i
-         programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
+         programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}}]
        }},
         // Unwind to "de-normalize" the document per array element
         {$unwind: "$programsOfferedArray"},
