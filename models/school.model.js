@@ -24,5 +24,5 @@ let School = new Schema({
         type: [String]
     }
 });
-//School.index({programsOfferedArray: 'text'});
+
 module.exports = mongoose.model('schools', School);/*Parameters are (MongoDB Collection name, name of Schema object defined in file)*/
