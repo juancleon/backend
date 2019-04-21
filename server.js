@@ -12,12 +12,12 @@ const PORT = 4000;
 let Application = require('./models/application.model');
 let TestScore = require('./models/test-score.model');
 let School = require('./models/school.model');
+let SchoolRecommender = require('./models/school-recommender.model');
 
 app.use(cors());
 app.use(bodyParser.json());
 
 mongoose.connect('mongodb://127.0.0.1:27017/Project', {useNewUrlParser: true});
-//mongoose.set('useCreateIndex', true);
 const connection = mongoose.connection;/*Mongoose creates a default connection when you call mongoose.connect(). You can access the default
 connection using mongoose.connection.*/
 
@@ -45,6 +45,16 @@ projectRoutes.route('/testScores').get(function(req, res){//get all
   });
 });
 
+projectRoutes.route('/savedSearches').get(function(req, res){//get all
+  SchoolRecommender.find(function(err, schoolRecommenders) {
+      if (err) {
+          console.log(err);
+      } else {
+          res.json(schoolRecommenders);
+      }
+  });
+});
+
 projectRoutes.route('/applications/:id').get(function(req, res) {// get one by id
       let id = req.params.id;
       Application.findById(id, function(err, application) {
@@ -56,6 +66,13 @@ projectRoutes.route('/testScores/:id').get(function(req, res) {// get one by id
       let id = req.params.id;
       TestScore.findById(id, function(err, testScore) {
           res.json(testScore)
+      });
+});
+
+projectRoutes.route('/savedSearches/:id').get(function(req, res) {// get one by id
+      let id = req.params.id;
+      SchoolRecommender.findById(id, function(err, schoolRecommender) {
+          res.json(schoolRecommender)
       });
 });
 
@@ -78,6 +95,17 @@ projectRoutes.route('/testScores/add').post(function(req, res) {
                })
                .catch(err =>  {
                     res.status(400).send('adding new test score failed');
+               });
+});
+
+projectRoutes.route('/savedSearches/add').post(function(req, res) {
+    let schoolRecommender = new SchoolRecommender(req.body);
+    schoolRecommender.save()
+               .then(schoolRecommender => {
+                   res.status(200).json({'SchoolRecommender': 'school recommender added successfully'});
+               })
+               .catch(err =>  {
+                    res.status(400).send('adding new school recommender failed');
                });
 });
 
@@ -116,6 +144,24 @@ projectRoutes.route('/testScores/update/:id').post(function(req, res) {
     });
 });
 
+projectRoutes.route('/savedSearches/update/:id').post(function(req, res) {
+    SchoolRecommender.findById(req.params.id, function(err, schoolRecommender) {
+                if (!schoolRecommender)
+                    res.status(404).send('data is not found');
+                else
+                    schoolRecommender.zipCode = req.body.zipCode;
+                    schoolRecommender.costOfLivingIndex = req.body.costOfLivingIndex;
+                    schoolRecommender.programOfInterest = req.body.programOfInterest;
+
+                schoolRecommender.save().then(schoolRecommender => {
+                    res.json('School Recommender updated');
+                })
+                .catch(err => {
+                    res.status(400).send("Update not possible");
+                });
+    });
+});
+
 projectRoutes.route('/applications/delete/:id').delete(function(req, res) {// delete one by id
       let id = req.params.id;
       Application.findByIdAndRemove(id, function(err, application) {
@@ -138,6 +184,17 @@ projectRoutes.route('/testScores/delete/:id').delete(function(req, res) {// dele
       });
 });
 
+projectRoutes.route('/savedSearches/delete/:id').delete(function(req, res) {// delete one by id
+      let id = req.params.id;
+      SchoolRecommender.findByIdAndRemove(id, function(err, schoolRecommender) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(schoolRecommender);
+        }
+      });
+});
+
 projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').get(function(req, res){
 
       let searchZipCode = req.params.zipCode;
@@ -148,13 +205,14 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
       {
         searchProgramsOfInterest='';
       }
-      console.log(searchProgramsOfInterest);
+
+      //console.log(searchCostOfLiving.valueOf());
       School.aggregate(
       [
         {$match: {
          $or:[{
          zipCode: {$gte: String(searchZipCode - 9910), $lte: String(Number(searchZipCode) + 9910)},
-         costOfLivingIndex: {$gte: String(searchCostOfLiving - 20), $lte: String(Number(searchCostOfLiving) + 78)},
+         costOfLivingIndex: {$gte:String(searchCostOfLiving - 50), $lte: String(Number(searchCostOfLiving) + 50)},
          // Match first to reduce documents to those where the array contains the match
          //programsOfferedArray: new RegExp(searchProgramsOfInterest, 'i')
          //programsOfferedArray: /searchProgramsOfInterest/i
