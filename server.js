@@ -12,7 +12,7 @@ const PORT = 4000;
 let Application = require('./models/application.model');
 let TestScore = require('./models/test-score.model');
 let School = require('./models/school.model');
-let SchoolRecommender = require('./models/school-recommender.model');
+let SchoolRecommenderSearchResult = require('./models/school-recommender-search-results.model');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -46,11 +46,11 @@ projectRoutes.route('/testScores').get(function(req, res){//get all
 });
 
 projectRoutes.route('/savedSearches').get(function(req, res){//get all
-  SchoolRecommender.find(function(err, schoolRecommenders) {
+  SchoolRecommenderSearchResult.find(function(err, schoolRecommenderSearchResult) {
       if (err) {
           console.log(err);
       } else {
-          res.json(schoolRecommenders);
+          res.json(schoolRecommenderSearchResult);
       }
   });
 });
@@ -71,8 +71,8 @@ projectRoutes.route('/testScores/:id').get(function(req, res) {// get one by id
 
 projectRoutes.route('/savedSearches/:id').get(function(req, res) {// get one by id
       let id = req.params.id;
-      SchoolRecommender.findById(id, function(err, schoolRecommender) {
-          res.json(schoolRecommender)
+      SchoolRecommenderSearchResult.findById(id, function(err, schoolRecommenderSearchResult) {
+          res.json(schoolRecommenderSearchResult)
       });
 });
 
@@ -99,13 +99,13 @@ projectRoutes.route('/testScores/add').post(function(req, res) {
 });
 
 projectRoutes.route('/savedSearches/add').post(function(req, res) {
-    let schoolRecommender = new SchoolRecommender(req.body);
-    schoolRecommender.save()
-               .then(schoolRecommender => {
-                   res.status(200).json({'SchoolRecommender': 'school recommender added successfully'});
+    let schoolRecommenderSearchResult = new SchoolRecommenderSearchResult(req.body);
+    schoolRecommenderSearchResult.save()
+               .then(schoolRecommenderSearchResult => {
+                   res.status(200).json({'SchoolRecommenderSearchResult': 'school recommender search result added successfully'});
                })
                .catch(err =>  {
-                    res.status(400).send('adding new school recommender failed');
+                    res.status(400).send('adding new school recommender search result failed');
                });
 });
 
@@ -145,16 +145,17 @@ projectRoutes.route('/testScores/update/:id').post(function(req, res) {
 });
 
 projectRoutes.route('/savedSearches/update/:id').post(function(req, res) {
-    SchoolRecommender.findById(req.params.id, function(err, schoolRecommender) {
-                if (!schoolRecommender)
+    SchoolRecommenderSearchResult.findById(req.params.id, function(err, schoolRecommenderSearchResult) {
+                if (!schoolRecommenderSearchResult)
                     res.status(404).send('data is not found');
                 else
-                    schoolRecommender.zipCode = req.body.zipCode;
-                    schoolRecommender.costOfLivingIndex = req.body.costOfLivingIndex;
-                    schoolRecommender.programOfInterest = req.body.programOfInterest;
+                    schoolRecommenderSearchResult.zipCode = req.body.zipCode;
+                    schoolRecommenderSearchResult.costOfLivingIndex = req.body.costOfLivingIndex;
+                    schoolRecommenderSearchResult.programOfInterest = req.body.programOfInterest;
+                    schoolRecommenderSearchResult.schools = req.body.schools;
 
-                schoolRecommender.save().then(schoolRecommender => {
-                    res.json('School Recommender updated');
+                schoolRecommenderSearchResult.save().then(schoolRecommenderSearchResult => {
+                    res.json('School Recommender Search Result updated');
                 })
                 .catch(err => {
                     res.status(400).send("Update not possible");
@@ -186,11 +187,11 @@ projectRoutes.route('/testScores/delete/:id').delete(function(req, res) {// dele
 
 projectRoutes.route('/savedSearches/delete/:id').delete(function(req, res) {// delete one by id
       let id = req.params.id;
-      SchoolRecommender.findByIdAndRemove(id, function(err, schoolRecommender) {
+      SchoolRecommenderSearchResult.findByIdAndRemove(id, function(err, schoolRecommenderSearchResult) {
         if (err) {
             console.log(err);
         } else {
-            res.json(schoolRecommender);
+            res.json(schoolRecommenderSearchResult);
         }
       });
 });
