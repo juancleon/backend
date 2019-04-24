@@ -13,6 +13,7 @@ let Application = require('./models/application.model');
 let TestScore = require('./models/test-score.model');
 let School = require('./models/school.model');
 let SchoolRecommenderSearchResult = require('./models/school-recommender-search-results.model');
+let User = require('./models/user.model');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -144,7 +145,7 @@ projectRoutes.route('/testScores/update/:id').post(function(req, res) {
     });
 });
 
-projectRoutes.route('/savedSearches/update/:id').post(function(req, res) {
+{/*projectRoutes.route('/savedSearches/update/:id').post(function(req, res) {
     SchoolRecommenderSearchResult.findById(req.params.id, function(err, schoolRecommenderSearchResult) {
                 if (!schoolRecommenderSearchResult)
                     res.status(404).send('data is not found');
@@ -161,7 +162,7 @@ projectRoutes.route('/savedSearches/update/:id').post(function(req, res) {
                     res.status(400).send("Update not possible");
                 });
     });
-});
+});*/}
 
 projectRoutes.route('/applications/delete/:id').delete(function(req, res) {// delete one by id
       let id = req.params.id;
@@ -192,6 +193,28 @@ projectRoutes.route('/savedSearches/delete/:id').delete(function(req, res) {// d
             console.log(err);
         } else {
             res.json(schoolRecommenderSearchResult);
+        }
+      });
+});
+
+projectRoutes.route('/user/register').post(function(req, res) {
+    let user = new User(req.body);
+    user.save()
+               .then(user => {
+                   res.status(200).json({'User': 'user added successfully'});
+               })
+               .catch(err =>  {
+                    res.status(400).send('adding new User failed');
+               });
+});
+
+projectRoutes.route('/lookForUser/:userName').get(function(req, res) {// get one by id
+      let userName = req.params.userName;
+      User.findOne({userName: userName}, function(err, userName) {
+        if (userName) {
+            res.json('true');
+        } else {
+            res.json('false');
         }
       });
 });
