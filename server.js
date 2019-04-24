@@ -210,12 +210,13 @@ projectRoutes.route('/user/register').post(function(req, res) {
 
 projectRoutes.route('/lookForUser/:userName').get(function(req, res) {// get one by id
       let userName = req.params.userName;
-      User.findOne({userName: userName}, function(err, userName) {
-        if (userName) {
-            res.json('true');
-        } else {
-            res.json('false');
-        }
+      User.findOne({userName: userName})
+          .then(userName =>{
+          if (userName) {
+              res.json('true');
+          } else {
+              res.json('false');
+          }
       });
 });
 
