@@ -118,12 +118,13 @@ projectRoutes.route('/applications/update/:id').post(function(req, res) {
                     application.school = req.body.school;
                     application.status = req.body.status;
 
-                application.save().then(application => {
-                    res.json('Application updated');
-                })
-                .catch(err => {
-                    res.status(400).send("Update not possible");
-                });
+                application.save()
+                    .then(application => {
+                        res.json('Application updated');
+                    })
+                    .catch(err => {
+                        res.status(400).send("Update not possible");
+                    });
     });
 });
 
@@ -198,26 +199,22 @@ projectRoutes.route('/savedSearches/delete/:id').delete(function(req, res) {// d
 });
 
 projectRoutes.route('/user/register').post(function(req, res) {
-    let user = new User(req.body);
-    user.save()
-               .then(user => {
-                   res.status(200).json({'User': 'user added successfully'});
-               })
-               .catch(err =>  {
-                    res.status(400).send('adding new User failed');
-               });
-});
+    let userName = req.body.userName;
+    User.findOne({userName: userName}).then(user => {
+        if (user) {
+          return res.status(400).json({userName: "User name already exists"})
+        }
 
-projectRoutes.route('/lookForUser/:userName').get(function(req, res) {// get one by id
-      let userName = req.params.userName;
-      User.findOne({userName: userName})
-          .then(userName =>{
-          if (userName) {
-              res.json('true');
-          } else {
-              res.json('false');
-          }
-      });
+        let newUser = new User(req.body);
+
+        newUser.save()
+            .then(user => {
+                res.status(200).json({'User': 'New user added successfully'});
+            })
+            .catch(err => {
+                res.status(400).send('adding new User failed');
+            })
+        });
 });
 
 projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').get(function(req, res){
