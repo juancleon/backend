@@ -198,9 +198,9 @@ projectRoutes.route('/savedSearches/delete/:id').delete(function(req, res) {// d
       });
 });
 
-projectRoutes.route('/user/register').post(function(req, res) {
-    let userName = req.body.userName;
-    User.findOne({userName: userName}).then(user => {
+projectRoutes.route('/register').post(function(req, res) {
+    let userNametoSearch = req.body.userName;
+    User.findOne({userName: userNametoSearch}).then(user => {
         if (user) {
           return res.status(400).json({userName: "User name already exists"})
         }
@@ -215,6 +215,18 @@ projectRoutes.route('/user/register').post(function(req, res) {
                 res.status(400).send('adding new User failed');
             })
         });
+});
+
+projectRoutes.route('/login/:userName').get(function(req, res) {// get one by id
+      let userNametoSearch = req.params.userName;
+      User.findOne({userName: userNametoSearch}).then(user => {
+        if (user) {
+          res.status(200).json(user)
+        }
+        else{
+          res.status(400).json({userName: "User name not found"})
+        }
+      })
 });
 
 projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').get(function(req, res){
