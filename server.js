@@ -5,6 +5,12 @@ const cors = require('cors');
 const mongoose = require ('mongoose');/*returns Singleton. Mongoose is a library that allows us to deal in an object-oriented way with the
 database.*/
 
+/*
+Startup Commands for Scrapy
+        activate ScrapyEnvironment
+        cd C:\Users\johnc\Desktop\testScrape\Example\Example\spiders
+        scrapy crawl ProjectSpider
+*/
 const projectRoutes = express.Router();
 
 const PORT = 4000;
@@ -235,18 +241,35 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
       let searchCostOfLiving = req.params.costOfLiving;
       let searchProgramsOfInterest = req.params.programOfInterest;
 
+      //console.log(searchCostOfLiving.valueOf());
+
+      if (searchZipCode === '0')
+      {
+        searchZipCode = '\xa0';
+        //console.log('Made it inside first if');
+      }
+
+      if (searchCostOfLiving === '0')
+      {
+        searchCostOfLiving = '\xa0';
+      }
+
       if (searchProgramsOfInterest==='null')
       {
         searchProgramsOfInterest='';
       }
 
-      //console.log(searchCostOfLiving.valueOf());
+      if (searchCostOfLiving!='\xa0')
+      {
+        searchCostOfLiving = Number(searchCostOfLiving) + 100;
+      }
+
       School.aggregate(
       [
         {$match: {
          $or:[{
          zipCode: {$gte: String(searchZipCode - 9910), $lte: String(Number(searchZipCode) + 9910)},
-         costOfLivingIndex: {$gte:String(searchCostOfLiving - 50), $lte: String(Number(searchCostOfLiving) + 50)},
+         shiftedCostOfLivingIndex: {$gte:String(searchCostOfLiving - 50), $lte: String(Number(searchCostOfLiving) + 50)},
          // Match first to reduce documents to those where the array contains the match
          //programsOfferedArray: new RegExp(searchProgramsOfInterest, 'i')
          //programsOfferedArray: /searchProgramsOfInterest/i
@@ -265,8 +288,10 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
           schoolURL: { $first: "$schoolURL"},
           state: { $first: "$state"},
           zipCode: { $first: "$zipCode"},
+          costOfLivingIndex: { $first: "$costOfLivingIndex"},
+          shiftedCostOfLivingIndex: { $first: "$shiftedCostOfLivingIndex"},
           programsOfferedArray: { $push: "$programsOfferedArray"},
-          costOfLivingIndex: { $first: "$costOfLivingIndex"}
+
         }}
       ],
           function(err, schools) {
