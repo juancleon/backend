@@ -152,25 +152,6 @@ projectRoutes.route('/testScores/update/:id').post(function(req, res) {
     });
 });
 
-{/*projectRoutes.route('/savedSearches/update/:id').post(function(req, res) {
-    SchoolRecommenderSearchResult.findById(req.params.id, function(err, schoolRecommenderSearchResult) {
-                if (!schoolRecommenderSearchResult)
-                    res.status(404).send('data is not found');
-                else
-                    schoolRecommenderSearchResult.zipCode = req.body.zipCode;
-                    schoolRecommenderSearchResult.costOfLivingIndex = req.body.costOfLivingIndex;
-                    schoolRecommenderSearchResult.programOfInterest = req.body.programOfInterest;
-                    schoolRecommenderSearchResult.schools = req.body.schools;
-
-                schoolRecommenderSearchResult.save().then(schoolRecommenderSearchResult => {
-                    res.json('School Recommender Search Result updated');
-                })
-                .catch(err => {
-                    res.status(400).send("Update not possible");
-                });
-    });
-});*/}
-
 projectRoutes.route('/applications/delete/:id').delete(function(req, res) {// delete one by id
       let id = req.params.id;
       Application.findByIdAndRemove(id, function(err, application) {
