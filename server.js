@@ -123,6 +123,9 @@ projectRoutes.route('/applications/update/:id').post(function(req, res) {
                 else
                     application.school = req.body.school;
                     application.status = req.body.status;
+                    application.dueDate = req.body.dueDate;
+                    application.displayDate = req.body.displayDate;
+                    application.currentDate = req.body.currentDate;
 
                 application.save()
                     .then(application => {
