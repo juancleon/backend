@@ -10,6 +10,15 @@ let TestScore = new Schema({
     },
     verbalScore: {
         type: Number
+    },
+    dateTaken: {
+        type: Date
+    },
+    displayDate: {
+        type: String
+    },
+    currentDate: {
+        type: Date
     }
 });
 
