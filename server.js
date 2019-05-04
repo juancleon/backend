@@ -14,7 +14,7 @@ Startup Commands for Scrapy
 const projectRoutes = express.Router();
 
 const PORT = 4000;
-//mongod filepath: C:\Program Files\MongoDB\Server\4.0\bin
+//mongod filepath: C:\Program Files\MongoDB\Server\4.0\binn
 let Application = require('./models/application.model');
 let TestScore = require('./models/test-score.model');
 let School = require('./models/school.model');
@@ -33,13 +33,40 @@ connection.once('open', function (){
 })
 
 projectRoutes.route('/applications').get(function(req, res){//get all
-  Application.find(function(err, applications) {
+    Application.aggregate(
+    [
+      {$project: {
+          school: 1,
+          status: 1,
+          dueDate: 1,
+          displayDate: 1,
+          timeLeft:
+              {
+                  $cond: {
+                  if: {$eq: ['$timeLeft', "true"] },
+                  then: { $subtract: [ "$dueDate", new Date() ] },
+                  else: ''
+              }
+          }
+        }
+      }
+
+
+    ],
+        function(err, applications) {
+        if (err) {
+            console.log(err);
+        } else {
+          res.json(applications);
+        }
+      });
+/*  Application.find(function(err, applications) {
       if (err) {
           console.log(err);
       } else {
           res.json(applications);
       }
-  });
+  });*/
 });
 
 projectRoutes.route('/testScores').get(function(req, res){//get all
@@ -145,6 +172,9 @@ projectRoutes.route('/testScores/update/:id').post(function(req, res) {
                     testScore.testType = req.body.testType;
                     testScore.mathScore = req.body.mathScore;
                     testScore.verbalScore = req.body.verbalScore;
+                    testScore.dateTaken = req.body.dateTaken;
+                    testScore.displayDate = req.body.displayDate;
+                    testScore.currentDate = req.body.currentDate;
 
                 testScore.save().then(testScore => {
                     res.json('Test Score updated');
