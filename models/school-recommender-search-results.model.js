@@ -10,9 +10,6 @@ let SchoolRecommenderSearchResult = new Schema({
     },
     programOfInterest: {
         type: String
-    },
-    schools: {
-        type: [String]
     }
 });
 
