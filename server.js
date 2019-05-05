@@ -14,7 +14,7 @@ Startup Commands for Scrapy
 const projectRoutes = express.Router();
 
 const PORT = 4000;
-//mongod filepath: C:\Program Files\MongoDB\Server\4.0\binn
+//mongod filepath: C:\Program Files\MongoDB\Server\4.0\bin
 let Application = require('./models/application.model');
 let TestScore = require('./models/test-score.model');
 let School = require('./models/school.model');
@@ -36,18 +36,27 @@ projectRoutes.route('/applications').get(function(req, res){//get all
     Application.aggregate(
     [
       {$project: {
-          school: 1,
-          status: 1,
-          dueDate: 1,
-          displayDate: 1,
-          timeLeft:
-              {
-                  $cond: {
-                  if: {$eq: ['$timeLeft', "true"] },
-                  then: { $subtract: [ "$dueDate", new Date() ] },
-                  else: ''
-              }
-          }
+            school: 1,
+            status: 1,
+            dueDate: 1,
+            displayDate: 1,
+            currentDate:
+                {
+                    $cond: {
+                    if: {$eq: ['$dueDate', null] },
+                    then: '',
+                    else: new Date(),
+                }
+            },
+            timeLeft:
+            {
+                    $cond: {
+                    if: {$eq: ['$dueDate', null] },
+                    then: '',
+                    else: {$trunc: {$divide: [{$subtract: [ "$dueDate", "$currentDate"]}, 8.64e+7]}}
+                    //else: { $subtract: [ "$dueDate", new Date() ] }
+                }
+            }
         }
       }
 
