@@ -7,7 +7,19 @@ let Application = new Schema({
     },
     status: {
         type: String
-    }
+    },
+    dueDate: {
+        type: Date
+    },
+    displayDate: {
+        type: String
+    },
+    currentDate: {
+        type: Date
+    },
+    timeLeft: {
+        type: String
+    },
 });
 
 module.exports = mongoose.model('applications', Application);/*Parameters are (MongoDB Collection name, name of Schema object defined in file)*/
