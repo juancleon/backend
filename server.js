@@ -134,6 +134,28 @@ projectRoutes.route('/savedSearches').get(function(req, res){//get all
   });
 });
 
+projectRoutes.route('/sortApplications/:sortCriteria').get(function(req, res){//get all
+    let sortCriteria = req.params.sortCriteria;
+    Application.find({}).sort([[sortCriteria, 1]]).exec(function(err, applications)
+    {
+      if (err) {
+          console.log(err);
+      } else {
+          res.json(applications);
+      }
+     });
+  /*projectRoutes.route('/applications').get(function(req, res){//get all
+      Application.find(function(err, applications) {
+          if (err) {
+              console.log(err);
+          } else {
+              res.json(applications);
+          }
+      });
+    });*/
+});
+
+
 projectRoutes.route('/applications/:id').get(function(req, res) {// get one by id
       let id = req.params.id;
       Application.findById(id, function(err, application) {
