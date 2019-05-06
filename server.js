@@ -136,7 +136,42 @@ projectRoutes.route('/savedSearches').get(function(req, res){//get all
 
 projectRoutes.route('/sortApplications/:sortCriteria').get(function(req, res){//get all
     let sortCriteria = req.params.sortCriteria;
-    Application.find({}).sort([[sortCriteria, 1]]).exec(function(err, applications)
+    Application.aggregate(
+    [
+      {$project: {
+            school: 1,
+            status: 1,
+            dueDate: 1,
+            displayDate: 1,
+            currentDate:
+                {
+                    $cond: {
+                    if: {$eq: ['$dueDate', null] },
+                    then: '',
+                    else: new Date(),
+                }
+            },
+            timeLeft:
+            {
+                    $cond: {
+                    if: {$eq: ['$dueDate', null] },
+                    then: '',
+                    else: {$trunc: {$divide: [{$subtract: [ "$dueDate", "$currentDate"]}, 8.64e+7]}}
+                    //else: { $subtract: [ "$dueDate", new Date() ] }
+                }
+            }
+        }
+      },
+       { $sort: { [sortCriteria]: 1 } },
+    ],
+        function(err, applications) {
+        if (err) {
+            console.log(err);
+        } else {
+          res.json(applications);
+        }
+      });
+  /*  Application.find({}).sort([[sortCriteria, 1]]).exec(function(err, applications)
     {
       if (err) {
           console.log(err);
@@ -144,7 +179,7 @@ projectRoutes.route('/sortApplications/:sortCriteria').get(function(req, res){//
           res.json(applications);
       }
      });
-  /*projectRoutes.route('/applications').get(function(req, res){//get all
+     projectRoutes.route('/applications').get(function(req, res){//get all
       Application.find(function(err, applications) {
           if (err) {
               console.log(err);
