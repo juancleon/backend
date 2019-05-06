@@ -79,13 +79,49 @@ projectRoutes.route('/applications').get(function(req, res){//get all
 });
 
 projectRoutes.route('/testScores').get(function(req, res){//get all
-  TestScore.find(function(err, testScores) {
+
+  TestScore.aggregate(
+  [
+    {$project: {
+          testType: 1,
+          mathScore: 1,
+          verbalScore: 1,
+          dateTaken: 1,
+          displayDate: 1,
+          currentDate:
+              {
+                  $cond: {
+                  if: {$eq: ['$dateTaken', null] },
+                  then: '',
+                  else: new Date(),
+              }
+          },
+          timeSinceTaken:
+          {
+                  $cond: {
+                  if: {$eq: ['$dateTaken', null] },
+                  then: '',
+                  else: {$trunc: {$divide: [{$subtract: ["$currentDate", "$dateTaken"]}, 8.64e+7]}}
+                  //else: { $subtract: [ new Date(), "$dateTaken" ] }
+              }
+          }
+      }
+    }
+  ],
+  function(err, testScores) {
+  if (err) {
+      console.log(err);
+  } else {
+    res.json(testScores);
+  }
+});
+/*  TestScore.find(function(err, testScores) {
       if (err) {
           console.log(err);
       } else {
           res.json(testScores);
       }
-  });
+  });*/
 });
 
 projectRoutes.route('/savedSearches').get(function(req, res){//get all
