@@ -190,6 +190,55 @@ projectRoutes.route('/sortApplications/:sortCriteria').get(function(req, res){//
     });*/
 });
 
+projectRoutes.route('/searchApplications/:searchField/:searchCriteria').get(function(req, res){//get all
+    let searchField = req.params.searchField;
+    let searchCriteria = req.params.searchCriteria;
+
+    Application.aggregate(
+    [
+      {$match: {[searchField]: searchCriteria}},
+      {$project: {
+            school: 1,
+            status: 1,
+            dueDate: 1,
+            displayDate: 1,
+            currentDate:
+                {
+                    $cond: {
+                    if: {$eq: ['$dueDate', null] },
+                    then: '',
+                    else: new Date(),
+                }
+            },
+            timeLeft:
+            {
+                    $cond: {
+                    if: {$eq: ['$dueDate', null] },
+                    then: '',
+                    else: {$trunc: {$divide: [{$subtract: [ "$dueDate", "$currentDate"]}, 8.64e+7]}}
+                    //else: { $subtract: [ "$dueDate", new Date() ] }
+                }
+            }
+        }
+      }
+    ],
+        function(err, applications) {
+        if (err) {
+            console.log(err);
+        } else {
+          res.json(applications);
+        }
+      });
+  /*  projectRoutes.route('/applications').get(function(req, res){//get all
+      Application.find(function(err, applications) {
+          if (err) {
+              console.log(err);
+          } else {
+              res.json(applications);
+          }
+      });
+    });*/
+});
 
 projectRoutes.route('/applications/:id').get(function(req, res) {// get one by id
       let id = req.params.id;
