@@ -240,6 +240,63 @@ projectRoutes.route('/searchApplications/:searchField/:searchCriteria').get(func
     });*/
 });
 
+projectRoutes.route('/sortTestScores/:sortCriteria').get(function(req, res){//get all
+    let sortCriteria = req.params.sortCriteria;
+    TestScore.aggregate(
+    [
+      {$project: {
+            testType: 1,
+            mathScore: 1,
+            verbalScore: 1,
+            dateTaken: 1,
+            displayDate: 1,
+            currentDate:
+                {
+                    $cond: {
+                    if: {$eq: ['$dateTaken', null] },
+                    then: '',
+                    else: new Date(),
+                }
+            },
+            timeSinceTaken:
+                {
+                    $cond: {
+                    if: {$eq: ['$dateTaken', null] },
+                    then: '',
+                    else: {$trunc: {$divide: [{$subtract: ["$currentDate", "$dateTaken"]}, 8.64e+7]}}
+                    //else: { $subtract: [ "$dueDate", new Date() ] }
+                }
+            }
+        }
+      },
+       { $sort: { [sortCriteria]: 1 } },
+    ],
+        function(err, testScores) {
+        if (err) {
+            console.log(err);
+        } else {
+          res.json(testScores);
+        }
+      });
+  /*  Application.find({}).sort([[sortCriteria, 1]]).exec(function(err, applications)
+    {
+      if (err) {
+          console.log(err);
+      } else {
+          res.json(applications);
+      }
+     });
+     projectRoutes.route('/applications').get(function(req, res){//get all
+      Application.find(function(err, applications) {
+          if (err) {
+              console.log(err);
+          } else {
+              res.json(applications);
+          }
+      });
+    });*/
+});
+
 projectRoutes.route('/applications/:id').get(function(req, res) {// get one by id
       let id = req.params.id;
       Application.findById(id, function(err, application) {
