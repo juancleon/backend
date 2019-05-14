@@ -463,9 +463,9 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
       let searchCostOfLiving = req.params.costOfLiving;
       let searchProgramsOfInterest = req.params.programOfInterest;
 
-      //console.log(searchCostOfLiving.valueOf());
 
-      if (searchZipCode === '0')
+
+      /*if (searchZipCode === '0')
       {
         searchZipCode = '\xa0';
         //console.log('Made it inside first if');
@@ -474,7 +474,7 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
       if (searchCostOfLiving === '0')
       {
         searchCostOfLiving = '\xa0';
-      }
+      }*/
 
       if (searchProgramsOfInterest==='null')
       {
@@ -485,44 +485,168 @@ projectRoutes.route('/searchSchools/:zipCode/:costOfLiving/:programOfInterest').
       {
         searchCostOfLiving = Number(searchCostOfLiving) + 100;
       }
+      /*console.log(searchZipCode);
+      console.log(searchCostOfLiving);
+      console.log(searchProgramsOfInterest.valueOf());*/
 
-      School.aggregate(
-      [
-        {$match: {
-         $or:[{
-         zipCode: {$gte: String(searchZipCode - 9910), $lte: String(Number(searchZipCode) + 9910)},
-         shiftedCostOfLivingIndex: {$gte:String(searchCostOfLiving - 50), $lte: String(Number(searchCostOfLiving) + 50)},
-         // Match first to reduce documents to those where the array contains the match
-         //programsOfferedArray: new RegExp(searchProgramsOfInterest, 'i')
-         //programsOfferedArray: /searchProgramsOfInterest/i
-         programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}}]
-       }},
-        // Unwind to "de-normalize" the document per array element
-        {$unwind: "$programsOfferedArray"},
-        // Now filter the documents for the elements that match
-        { $match: {
-          programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
-        }},
-        // Group back as an array with only the matching elements
-        { $group: {
-          _id: "$_id",
-          name: { $first: "$name"},
-          schoolURL: { $first: "$schoolURL"},
-          state: { $first: "$state"},
-          zipCode: { $first: "$zipCode"},
-          costOfLivingIndex: { $first: "$costOfLivingIndex"},
-          shiftedCostOfLivingIndex: { $first: "$shiftedCostOfLivingIndex"},
-          programsOfferedArray: { $push: "$programsOfferedArray"},
+      if ((searchCostOfLiving === '\xa0') && (searchProgramsOfInterest===''))
+      {
+        //console.log('No cost of living & no program of interest');
+        School.aggregate(
+        [
+          {$match: {
+           $or:[{
+           zipCode: {$gte: String(searchZipCode - 100), $lte: String(Number(searchZipCode) + 100)},
+           //shiftedCostOfLivingIndex: {$gte:String(searchCostOfLiving - 20), $lte: String(Number(searchCostOfLiving) + 20)},
+           //programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
+         }]
+         }},
+          // Unwind to "de-normalize" the document per array element
+          {$unwind: "$programsOfferedArray"},
+          // Now filter the documents for the elements that match
+          { $match: {
+            programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
+          }},
+          // Group back as an array with only the matching elements
+          { $group: {
+            _id: "$_id",
+            name: { $first: "$name"},
+            schoolURL: { $first: "$schoolURL"},
+            state: { $first: "$state"},
+            zipCode: { $first: "$zipCode"},
+            costOfLivingIndex: { $first: "$costOfLivingIndex"},
+            shiftedCostOfLivingIndex: { $first: "$shiftedCostOfLivingIndex"},
+            programsOfferedArray: { $push: "$programsOfferedArray"},
 
-        }}
-      ],
-          function(err, schools) {
-          if (err) {
-              console.log(err);
-          } else {
-            res.json(schools);
-          }
-      });
+          }}
+        ],
+            function(err, schools) {
+            if (err) {
+                console.log(err);
+            } else {
+              res.json(schools);
+            }
+        });
+      }
+      else if ((searchZipCode === '\xa0') && (searchProgramsOfInterest===''))
+      {
+        //console.log('No zip code & no program of interest');
+        School.aggregate(
+        [
+          {$match: {
+           $or:[{
+           //zipCode: {$gte: String(searchZipCode - 2000), $lte: String(Number(searchZipCode) + 2000)},
+           shiftedCostOfLivingIndex: {$gte:String(searchCostOfLiving - 5), $lte: String(Number(searchCostOfLiving) + 5)},
+           //programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
+         }]
+         }},
+          // Unwind to "de-normalize" the document per array element
+          {$unwind: "$programsOfferedArray"},
+          // Now filter the documents for the elements that match
+          { $match: {
+            programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
+          }},
+          // Group back as an array with only the matching elements
+          { $group: {
+            _id: "$_id",
+            name: { $first: "$name"},
+            schoolURL: { $first: "$schoolURL"},
+            state: { $first: "$state"},
+            zipCode: { $first: "$zipCode"},
+            costOfLivingIndex: { $first: "$costOfLivingIndex"},
+            shiftedCostOfLivingIndex: { $first: "$shiftedCostOfLivingIndex"},
+            programsOfferedArray: { $push: "$programsOfferedArray"},
+
+          }}
+        ],
+            function(err, schools) {
+            if (err) {
+                console.log(err);
+            } else {
+              res.json(schools);
+            }
+        });
+      }
+      else if ((searchZipCode === '\xa0') && (searchCostOfLiving === '\xa0'))
+      {
+        //console.log('No zip code & no cost of living index');
+        School.aggregate(
+        [
+          {$match: {
+           $or:[{
+           //zipCode: {$gte: String(searchZipCode - 2000), $lte: String(Number(searchZipCode) + 2000)},
+           //shiftedCostOfLivingIndex: {$gte:String(searchCostOfLiving - 20), $lte: String(Number(searchCostOfLiving) + 20)},
+           programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
+         }]
+         }},
+          // Unwind to "de-normalize" the document per array element
+          {$unwind: "$programsOfferedArray"},
+          // Now filter the documents for the elements that match
+          { $match: {
+            programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
+          }},
+          // Group back as an array with only the matching elements
+          { $group: {
+            _id: "$_id",
+            name: { $first: "$name"},
+            schoolURL: { $first: "$schoolURL"},
+            state: { $first: "$state"},
+            zipCode: { $first: "$zipCode"},
+            costOfLivingIndex: { $first: "$costOfLivingIndex"},
+            shiftedCostOfLivingIndex: { $first: "$shiftedCostOfLivingIndex"},
+            programsOfferedArray: { $push: "$programsOfferedArray"},
+
+          }}
+        ],
+            function(err, schools) {
+            if (err) {
+                console.log(err);
+            } else {
+              res.json(schools);
+            }
+        });
+      }
+      else {
+        //console.log('all three');
+        School.aggregate(
+        [
+          {$match: {
+           $or:[{
+           zipCode: {$gte: String(searchZipCode - 2000), $lte: String(Number(searchZipCode) + 2000)},
+           shiftedCostOfLivingIndex: {$gte:String(searchCostOfLiving - 20), $lte: String(Number(searchCostOfLiving) + 20)},
+           programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
+         }]
+         }},
+          // Unwind to "de-normalize" the document per array element
+          {$unwind: "$programsOfferedArray"},
+          // Now filter the documents for the elements that match
+          { $match: {
+            programsOfferedArray: {$regex: (searchProgramsOfInterest.valueOf()), $options: 'i'}
+          }},
+          // Group back as an array with only the matching elements
+          { $group: {
+            _id: "$_id",
+            name: { $first: "$name"},
+            schoolURL: { $first: "$schoolURL"},
+            state: { $first: "$state"},
+            zipCode: { $first: "$zipCode"},
+            costOfLivingIndex: { $first: "$costOfLivingIndex"},
+            shiftedCostOfLivingIndex: { $first: "$shiftedCostOfLivingIndex"},
+            programsOfferedArray: { $push: "$programsOfferedArray"},
+
+          }}
+        ],
+            function(err, schools) {
+            if (err) {
+                console.log(err);
+            } else {
+              res.json(schools);
+            }
+        });
+      }
+      // Match first to reduce documents to those where the array contains the match
+      //programsOfferedArray: new RegExp(searchProgramsOfInterest, 'i')
+      //programsOfferedArray: /searchProgramsOfInterest/i
     });
 
 app.use('/', projectRoutes);
