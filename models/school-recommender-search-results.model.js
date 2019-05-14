@@ -3,10 +3,10 @@ const Schema = mongoose.Schema;
 
 let SchoolRecommenderSearchResult = new Schema({
     zipCode: {
-        type: Number
+        type: String
     },
     costOfLivingIndex: {
-        type: Number
+        type: String
     },
     programOfInterest: {
         type: String
